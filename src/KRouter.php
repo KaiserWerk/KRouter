@@ -27,13 +27,20 @@ class KRouter
     public function dispatch()
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
+        $matches = 0;
         foreach ($this->getRoutes() as $route) {
             $pattern = '~' . preg_replace('~\[\:[a-z]+\]~', '[a-z0-9]+', str_replace('/', '\/', $route['url'])) . '~';
             if (preg_match($pattern, $url)) {
+                ++$matches;
                 $parameters = $this->getRouteParameters($route['url']);
                 (new $route['class']())->{$route['method']}($parameters);
                 break; // important! otherwise multiple routes might get matched
             }
+        }
+        if ($matches == 0) {
+            http_response_code(404);
+            header("HTTP/1.0 404 Not Found");
+            die("Error 404: Resource not found!");
         }
     }
     
