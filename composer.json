@@ -2,6 +2,7 @@
     "name": "kaiserwerk/k-router",
     "description": "A little library which enables you to use @Route and @Method annotations in your vanilla PHP project.",
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Robin Kaiser",
