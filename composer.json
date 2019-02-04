@@ -1,0 +1,18 @@
+{
+    "name": "kaiserwerk/k-router",
+    "description": "A little library which enables you to use @Route and @Method annotations in your vanilla PHP project.",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Robin Kaiser",
+            "email": "m@r-k.mx"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "files": ["vendor/kaiserwerk/k-router/src/KRouter.php", "vendor/kaiserwerk/k-router/src/Controller.php"]
+    }
+}
