@@ -3,7 +3,7 @@
     "description": "A little library which enables you to use @Route and @Method annotations in your vanilla PHP project.",
     "type": "library",
     "license": "MIT",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Robin Kaiser",
