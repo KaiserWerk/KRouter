@@ -13,6 +13,6 @@
         "php": ">=7.0.0"
     },
     "autoload": {
-        "files": ["vendor/kaiserwerk/k-router/src/KRouter.php", "vendor/kaiserwerk/k-router/src/Controller.php"]
+        "files": ["src/KRouter.php", "src/Controller.php"]
     }
 }
