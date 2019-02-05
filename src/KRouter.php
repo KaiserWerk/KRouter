@@ -161,7 +161,6 @@ class KRouter
                 if (trim($blockdocParts[0]) == 'Route') {
                     $elements2 = explode(',', str_replace(')', '', trim($blockdocParts[1])));
                     $_url = str_replace('"', '', trim($elements2[0]));
-                    $xpart = (trim($elements2[1] !== null)) ? trim($elements2[1]) : null;
                     if (array_key_exists(1, $elements2)) {
                         $_name = str_replace('name=', '', str_replace('"', '', $elements2[1]));
                     }
