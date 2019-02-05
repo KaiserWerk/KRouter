@@ -13,12 +13,15 @@ Then, you can create controller classes (don't forget to extend the Controller c
 add annotations like this:
 
 ```
-/**
- * @Route("/route/[:value]/do", name="route_do")
- * @Method(["GET", "HEAD"])
- */
-public function routeDoAction($params)
+class DefaultController extends Controller
 {
-  $value = $params->value;
+    /**
+     * @Route("/route/[:value]/do", name="route_do")
+     * @Method(["GET", "HEAD"])
+     */
+    public function routeDoAction($params)
+    {
+      $value = $params->value;
+    }
 }
 ```
