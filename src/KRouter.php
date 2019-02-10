@@ -27,21 +27,18 @@ class KRouter
     public function dispatch()
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
-        $matches = 0;
+        
         foreach ($this->getRoutes() as $route) {
-            $pattern = '~' . preg_replace('~\[\:[a-z]+\]~', '[a-z0-9]+', str_replace('/', '\/', $route['url'])) . '~';
-            if (preg_match($pattern, $url)) {
-                ++$matches;
+            if (preg_match($route['pattern'], $url) && substr_count($route['pattern'], '/') == substr_count($url, '/')) {
+                #echo 'Match found: <br><pre>';
+                #var_dump($route);die;
                 $parameters = $this->getRouteParameters($route['url']);
                 (new $route['class']())->{$route['method']}($parameters);
-                break; // important! otherwise multiple routes might get matched
+                die; // important! otherwise multiple routes might get matched
             }
         }
-        if ($matches == 0) {
-            http_response_code(404);
-            header("HTTP/1.0 404 Not Found");
-            die("Error 404: Resource not found!");
-        }
+        
+        echo 'display 404 page here';
     }
     
     /**
@@ -86,7 +83,6 @@ class KRouter
      * Return all defined routes in Controller annotations
      *
      * @return array
-     * @throws ReflectionException
      */
     public function getRoutes()
     {
@@ -115,9 +111,10 @@ class KRouter
                 $methodList    = $rcCurClass->getMethods();
                 unset($methodList[count($methodList) - 1]);
                 foreach ($methodList as $item) {
-                    $url = $this->parseDocBlock($item->getDocComment())['url'];
+                    $pattern = $this->parseDocBlock($item->getDocComment())['pattern'];
                     $routes[] = [
-                        'url' => $url,
+                        'url' => $pattern,
+                        'pattern' => '~' . preg_replace('~\[\:[a-z]+\]~', '[a-z0-9]+', str_replace('/', '\/', $pattern)) . '~',
                         'name'   => $this->parseDocBlock($item->getDocComment())['name'],
                         'method' => $item->getName(),
                         'class'  => $rcCurClass->getName(),
@@ -129,7 +126,14 @@ class KRouter
         if (empty($routes)) {
             die('There are no defined routes. Start by creating a controller class extending the Controller class.');
         }
-        return $routes;
+    
+        uasort($routes, function($a, $b){
+            //count the number of / in the route
+            //note the <=> spaceship (as it's called) is only available in PHP7+
+            return substr_count($b['pattern'], '/') <=> substr_count($a['pattern'], '/');
+        });
+        
+        return array_values($routes);
     }
     
     /**
@@ -142,7 +146,7 @@ class KRouter
     public function parseDocBlock($text)
     {
         $routes = [];
-        $_url = null;
+        $_pattern = null;
         $_name = null;
         $_methods = null;
         $parts = preg_split("/\r\n|\n|\r/", $text);
@@ -160,10 +164,8 @@ class KRouter
                 
                 if (trim($blockdocParts[0]) == 'Route') {
                     $elements2 = explode(',', str_replace(')', '', trim($blockdocParts[1])));
-                    $_url = str_replace('"', '', trim($elements2[0]));
-                    if (array_key_exists(1, $elements2)) {
-                        $_name = str_replace('name=', '', str_replace('"', '', $elements2[1]));
-                    }
+                    $_pattern = str_replace('"', '', trim($elements2[0]));
+                    $_name = str_replace('name=', '', str_replace('"', '', trim($elements2[1])));
                 }
                 if (trim($blockdocParts[0]) == 'Method') {
                     $element = str_replace(')', '', trim($blockdocParts[1]));
@@ -172,7 +174,7 @@ class KRouter
                 }
                 
                 $routes = [
-                    'url'  => $_url,
+                    'pattern'  => $_pattern,
                     'name' => $_name,
                     'httpMethods' => $_methods,
                 ];
