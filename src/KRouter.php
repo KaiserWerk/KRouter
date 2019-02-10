@@ -130,7 +130,7 @@ class KRouter
             return substr_count($b['pattern'], '/') <=> substr_count($a['pattern'], '/') && strlen($b['pattern']) < strlen($a['pattern']);
         });
         
-        return array_values(array_reverse(array_values($routes)));
+        return array_reverse(array_values($routes));
     }
     
     /**
