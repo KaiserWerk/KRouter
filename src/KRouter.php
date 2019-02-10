@@ -38,7 +38,9 @@ class KRouter
             }
         }
         
-        echo 'display 404 page here';
+        http_response_code(404);
+        header("HTTP/1.0 404 Not Found");
+        die("Error 404: Resource not found!");
     }
     
     /**
