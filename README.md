@@ -5,6 +5,10 @@
 First, do a `composer require kaiserwerk/k-router dev-master` to fetch the latest version. Then, In your index or bootstrap file, add
 
 ```
+require_once __DIR__ . '/vendor/autoload.php';
+
+...
+
 $router = new KRouter();
 $router->dispatch():
 ```
@@ -16,7 +20,7 @@ add annotations like this:
 class DefaultController extends Controller
 {
     /**
-     * @Route("/route/[:value]/do", name="route_do")
+     * @Route("/route/[:value]/do")
      * @Method(["GET", "HEAD"])
      */
     public function routeDoAction($params)
