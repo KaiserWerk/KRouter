@@ -21,17 +21,17 @@ class KRouter
     
     /**
      * Does the actual routing/matching stuff
-     *
-     * @throws ReflectionException
      */
     public function dispatch()
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
         
         foreach ($this->getRoutes() as $route) {
-            if (preg_match($route['pattern'], $url) && substr_count($route['pattern'], '/') == substr_count($url, '/')) {
-                #echo 'Match found: <br><pre>';
-                #var_dump($route);die;
+            if (
+                preg_match($route['pattern'], $url) &&
+                substr_count($route['pattern'], '/') == substr_count($url, '/') &&
+                in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods'])
+            ) {
                 $parameters = $this->getRouteParameters($route['url']);
                 (new $route['class']())->{$route['method']}($parameters);
                 die; // important! otherwise multiple routes might get matched
@@ -63,10 +63,6 @@ class KRouter
             $parts2 = explode('/', $url);
             unset($parts2[0]);
             $parts2 = array_values($parts2);
-            
-            #if (count($parts) !== count($parts2)) {
-            #    die('not the same amount of elements!'); // continue;
-            #}
             
             $count = count($parts);
             for ($i = 0; $i < $count; ++ $i) {
@@ -115,8 +111,9 @@ class KRouter
                 foreach ($methodList as $item) {
                     $pattern = $this->parseDocBlock($item->getDocComment())['pattern'];
                     $routes[] = [
+                        #'url' => ($pattern=='/') ? '' : $pattern,
                         'url' => $pattern,
-                        'pattern' => '~' . preg_replace('~\[\:[a-z]+\]~', '[a-z0-9]+', str_replace('/', '\/', $pattern)) . '~',
+                        'pattern' => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9]+', str_replace('/', '\/', $pattern)) . '~',
                         'name'   => $this->parseDocBlock($item->getDocComment())['name'],
                         'method' => $item->getName(),
                         'class'  => $rcCurClass->getName(),
@@ -128,14 +125,12 @@ class KRouter
         if (empty($routes)) {
             die('There are no defined routes. Start by creating a controller class extending the Controller class.');
         }
-    
+        
         uasort($routes, function($a, $b){
-            //count the number of / in the route
-            //note the <=> spaceship (as it's called) is only available in PHP7+
-            return substr_count($b['pattern'], '/') <=> substr_count($a['pattern'], '/');
+            return substr_count($b['pattern'], '/') <=> substr_count($a['pattern'], '/') && strlen($b['pattern']) < strlen($a['pattern']);
         });
         
-        return array_values($routes);
+        return array_values(array_reverse(array_values($routes)));
     }
     
     /**
