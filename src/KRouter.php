@@ -160,9 +160,15 @@ class KRouter
                 $blockdocParts = explode('(', $item);
                 
                 if (trim($blockdocParts[0]) == 'Route') {
-                    $elements2 = explode(',', str_replace(')', '', trim($blockdocParts[1])));
-                    $_pattern = str_replace('"', '', trim($elements2[0]));
-                    $_name = str_replace('name=', '', str_replace('"', '', trim($elements2[1])));
+                    if (strpos(trim($blockdocParts[1]), ',') !== false) {
+                        $elements2 = explode(',', str_replace(')', '', trim($blockdocParts[1])));
+                        $_pattern  = str_replace('"', '', trim($elements2[0]));
+                        $_name     = str_replace('name=', '', str_replace('"', '', trim($elements2[1])));
+                    } else {
+                        $elements2 = str_replace(')', '', trim($blockdocParts[0]));
+                        $_pattern = str_replace('"', '', $elements2);
+                        $_name = null;
+                    }
                 }
                 if (trim($blockdocParts[0]) == 'Method') {
                     $element = str_replace(')', '', trim($blockdocParts[1]));
