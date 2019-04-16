@@ -25,22 +25,67 @@ class KRouter
     public function dispatch()
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
-        
+    
+        $routes = $this->getRoutes();
+        #echo '<pre>';var_dump($routes);die;
+        foreach ($routes as $route) {
+            if ($route['url'] == $url) {
+                if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods']) ||
+                    substr_count($route['pattern'], '/') != substr_count($url, '/')) {
+                    continue;
+                }
+                die('URL: ' . $url . ', Pattern: ' . $route['url']);
+                (new $route['class']())->{$route['method']}();
+                die;
+            }
+        }
         foreach ($this->getRoutes() as $route) {
-            if (
-                preg_match($route['pattern'], $url) &&
-                substr_count($route['pattern'], '/') == substr_count($url, '/') &&
-                in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods'])
-            ) {
+            if ($route['url'] == '/') {
+                continue;
+            }
+            if (preg_match($route['pattern'], $url)) {
+                if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods']) ||
+                    substr_count($route['pattern'], '/') != substr_count($url, '/')) {
+                    continue;
+                }
+                die('URL: ' . $url . ', Pattern: ' . $route['pattern']);
                 $parameters = $this->getRouteParameters($route['url']);
                 (new $route['class']())->{$route['method']}($parameters);
-                die; // important! otherwise multiple routes might get matched
+                die;
             }
         }
         
-        http_response_code(404);
-        header("HTTP/1.0 404 Not Found");
-        die("Error 404: Resource not found!");
+        $default_controller = new DefaultController();
+        $default_controller->error404Action();
+        die;
+        
+        #http_response_code(400);
+        #header("HTTP/1.0 400 KRouter: Bad Request");
+        #die("Error 404: Bad Request!");
+        
+        /*foreach ($this->getRoutes() as $route) {
+            if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods'])) {
+                http_response_code(404);
+                header("HTTP/1.0 404 KRouter: Not Found");
+                die("Error 404: Resource not found!");
+            }
+            
+            if (substr_count($route['pattern'], '/') != substr_count($url, '/')) {
+                http_response_code(400);
+                header("HTTP/1.0 400 KRouter: Bad Request");
+                die("Error 404: Bad Request!");
+            }
+            $parameters = $this->getRouteParameters($route['url']);
+            if ($route['pattern'] == $url) {
+                (new $route['class']())->{$route['method']}($parameters);
+                die;
+            }
+            
+            if (preg_match($route['pattern'], $url)) {
+                (new $route['class']())->{$route['method']}($parameters);
+                die;
+            }
+        }*/
     }
     
     /**
@@ -113,7 +158,7 @@ class KRouter
                     $routes[] = [
                         #'url' => ($pattern=='/') ? '' : $pattern,
                         'url' => $pattern,
-                        'pattern' => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '~',
+                        'pattern' => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+$', str_replace('/', '\/', $pattern)) . '~',
                         'name'   => $this->parseDocBlock($item->getDocComment())['name'],
                         'method' => $item->getName(),
                         'class'  => $rcCurClass->getName(),
