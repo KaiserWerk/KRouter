@@ -39,7 +39,7 @@ class KRouter
                 die;
             }
         }
-        foreach ($this->getRoutes() as $route) {
+        foreach ($routes as $route) {
             if ($route['url'] == '/') {
                 continue;
             }
