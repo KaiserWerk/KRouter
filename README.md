@@ -20,12 +20,12 @@ add annotations like this:
 class DefaultController extends Controller
 {
     /**
-     * @Route("/route/[:value]/do")
+     * @Route("/route/[:myvalue]/do")
      * @Method(["GET", "HEAD"])
      */
     public function routeDoAction($params)
     {
-      $value = $params->value;
+      $myvalue = $params->myvalue;
     }
 }
 ```
