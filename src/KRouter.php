@@ -34,7 +34,7 @@ class KRouter
                     substr_count($route['pattern'], '/') != substr_count($url, '/')) {
                     continue;
                 }
-                die('URL: ' . $url . ', Pattern: ' . $route['url']);
+                #die('URL: ' . $url . ', Pattern: ' . $route['url']);
                 (new $route['class']())->{$route['method']}();
                 die;
             }
@@ -48,15 +48,23 @@ class KRouter
                     substr_count($route['pattern'], '/') != substr_count($url, '/')) {
                     continue;
                 }
-                die('URL: ' . $url . ', Pattern: ' . $route['pattern']);
+                #die('URL: ' . $url . ', Pattern: ' . $route['pattern']);
                 $parameters = $this->getRouteParameters($route['url']);
                 (new $route['class']())->{$route['method']}($parameters);
                 die;
             }
         }
         
-        $default_controller = new DefaultController();
-        $default_controller->error404Action();
+        if (class_exists('ErrorController')) {
+            $controller = new ErrorController();
+            if (method_exists($controller, 'error404Action')) {
+                $controller->error404Action();
+            }
+        } else {
+            http_response_code(400);
+            header("HTTP/1.0 400 KRouter: Bad Request");
+            die("KRouter Error 400: Bad Request!");
+        }
         die;
         
         #http_response_code(400);
