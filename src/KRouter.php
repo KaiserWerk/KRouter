@@ -25,25 +25,31 @@ class KRouter
     public function dispatch()
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
-    
+        
         $routes = $this->getRoutes();
         #echo '<pre>';var_dump($routes);die;
         foreach ($routes as $route) {
+            #echo '<b>Route URL:</b> '.$route['url'].', <b>Route Pattern:</b> '.$route['pattern'].', <b>Request URL:</b> '.$url.'<br>';
             if ($route['url'] == $url) {
+                #echo '<b>___________________ MATCH!!!_______________</b><br>';continue;
                 if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods']) ||
                     substr_count($route['pattern'], '/') != substr_count($url, '/')) {
                     continue;
                 }
                 #die('URL: ' . $url . ', Pattern: ' . $route['url']);
+                
                 (new $route['class']())->{$route['method']}();
                 die;
             }
         }
+        #echo '<br>';
         foreach ($routes as $route) {
+            #echo '<b>Route URL:</b> '.$route['url'].', <b>Route Pattern:</b> '.$route['pattern'].', <b>Request URL:</b> '.$url.'<br>';
             if ($route['url'] == '/') {
                 continue;
             }
             if (preg_match($route['pattern'], $url)) {
+                #echo '<b>___________________ MATCH!!!_______________</b><br>';continue;
                 if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods']) ||
                     substr_count($route['pattern'], '/') != substr_count($url, '/')) {
                     continue;
@@ -54,7 +60,7 @@ class KRouter
                 die;
             }
         }
-        
+        #die;
         if (class_exists('ErrorController')) {
             $controller = new ErrorController();
             if (method_exists($controller, 'error404Action')) {
@@ -166,7 +172,7 @@ class KRouter
                     $routes[] = [
                         #'url' => ($pattern=='/') ? '' : $pattern,
                         'url' => $pattern,
-                        'pattern' => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+$', str_replace('/', '\/', $pattern)) . '~',
+                        'pattern' => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '$~',
                         'name'   => $this->parseDocBlock($item->getDocComment())['name'],
                         'method' => $item->getName(),
                         'class'  => $rcCurClass->getName(),
