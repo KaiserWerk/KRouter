@@ -26,6 +26,10 @@ class KRouter
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
         
+		if (strpos($url, '?') !== false) {
+            $url = explode('?', $url)[0];
+        }
+		
         $routes = $this->getRoutes();
         #echo '<pre>';var_dump($routes);die;
         foreach ($routes as $route) {
