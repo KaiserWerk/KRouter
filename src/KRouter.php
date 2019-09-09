@@ -71,9 +71,9 @@ class KRouter
                 $controller->error404Action();
             }
         } else {
-            http_response_code(400);
-            header("HTTP/1.0 400 KRouter: Bad Request");
-            die("KRouter Error 400: Bad Request!");
+            http_response_code(404);
+            header("HTTP/1.0 404 KRouter: Not Found");
+            die("KRouter Error 404: Not Found");
         }
         die;
         
