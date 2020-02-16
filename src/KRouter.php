@@ -144,7 +144,7 @@ class KRouter
                         continue;
                     }
                     $docBlock = $this->parseDocBlock($dc);
-                    if (!empty($docBlock)) {
+                    if (empty($docBlock)) {
                         continue;
                     }
                     $routes[] = [
