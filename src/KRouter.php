@@ -172,16 +172,20 @@ class KRouter
                 $methodList    = $rcCurClass->getMethods();
                 unset($methodList[count($methodList) - 1]);
                 foreach ($methodList as $item) {
-                    $pattern = $this->parseDocBlock($item->getDocComment())['pattern'];
-                    $routes[] = [
-                        #'url' => ($pattern=='/') ? '' : $pattern,
-                        'url' => $pattern,
-                        'pattern' => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '$~',
-                        'name'   => $this->parseDocBlock($item->getDocComment())['name'],
-                        'method' => $item->getName(),
-                        'class'  => $rcCurClass->getName(),
-                        'httpMethods'  => $this->parseDocBlock($item->getDocComment())['httpMethods'],
-                    ];
+                    if ($item->getDocComment() !== false) {
+                        $pattern  = $this->parseDocBlock($item->getDocComment())['pattern'];
+                        $routes[] = [
+                            #'url' => ($pattern=='/') ? '' : $pattern,
+                            'url'         => $pattern,
+                            'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '$~',
+                            'name'        => $this->parseDocBlock($item->getDocComment())['name'],
+                            'method'      => $item->getName(),
+                            'class'       => $rcCurClass->getName(),
+                            'httpMethods' => $this->parseDocBlock($item->getDocComment())['httpMethods'],
+                        ];
+                    } else {
+                        continue;
+                    }
                 }
             }
         }
@@ -217,7 +221,7 @@ class KRouter
         $parts = array_values($parts);
         
         foreach ($parts as $item) {
-            if (substr($item, 0, 2) != '* @') {
+            if (substr($item, 0, 2) == '* @') {
                 $item = str_replace('* @', '', $item);
                 
                 $blockdocParts = explode('(', $item);
@@ -244,6 +248,8 @@ class KRouter
                     'name' => $_name,
                     'httpMethods' => $_methods,
                 ];
+            } else {
+                continue;
             }
         }
         
