@@ -76,34 +76,6 @@ class KRouter
             die("KRouter Error 404: Not Found");
         }
         die;
-        
-        #http_response_code(400);
-        #header("HTTP/1.0 400 KRouter: Bad Request");
-        #die("Error 404: Bad Request!");
-        
-        /*foreach ($this->getRoutes() as $route) {
-            if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods'])) {
-                http_response_code(404);
-                header("HTTP/1.0 404 KRouter: Not Found");
-                die("Error 404: Resource not found!");
-            }
-            
-            if (substr_count($route['pattern'], '/') != substr_count($url, '/')) {
-                http_response_code(400);
-                header("HTTP/1.0 400 KRouter: Bad Request");
-                die("Error 404: Bad Request!");
-            }
-            $parameters = $this->getRouteParameters($route['url']);
-            if ($route['pattern'] == $url) {
-                (new $route['class']())->{$route['method']}($parameters);
-                die;
-            }
-            
-            if (preg_match($route['pattern'], $url)) {
-                (new $route['class']())->{$route['method']}($parameters);
-                die;
-            }
-        }*/
     }
     
     /**
@@ -193,7 +165,7 @@ class KRouter
             die('There are no defined routes. Start by creating a controller class extending the Controller class.');
         }
         
-        uasort($routes, function($a, $b){
+        uasort($routes, function($a, $b) {
             return substr_count($b['pattern'], '/') <=> substr_count($a['pattern'], '/') && strlen($b['pattern']) < strlen($a['pattern']);
         });
         
@@ -226,7 +198,9 @@ class KRouter
                 
                 $blockdocParts = explode('(', $item);
                 
-                if (trim($blockdocParts[0]) == 'Route') {
+                $annotation = trim($blockdocParts[0]);
+                
+                if ($annotation == 'Route') {
                     if (strpos(trim($blockdocParts[1]), ',') !== false) {
                         $elements2 = explode(',', str_replace(')', '', trim($blockdocParts[1])));
                         $_pattern  = str_replace('"', '', trim($elements2[0]));
@@ -237,7 +211,7 @@ class KRouter
                         $_name = null;
                     }
                 }
-                if (trim($blockdocParts[0]) == 'Method') {
+                if ($annotation == 'Method') {
                     $element = str_replace(')', '', trim($blockdocParts[1]));
                     $_methods = \json_decode($element, true);
                     #var_dump($_methods);die;
