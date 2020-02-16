@@ -144,24 +144,22 @@ class KRouter
                 $methodList      = $rcCurClass->getMethods();
                 unset($methodList[count($methodList) - 1]);
                 foreach ($methodList as $item) {
-                    $dc = $item->getDocComment();
-                    if (!empty($dc)) {
-                        $docBlock = $this->parseDocBlock($dc);
-                        if (!empty($docBlock)) {
-                            $routes[] = [
-                                'url'         => $docBlock['pattern'],
-                                'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
-                                'name'        => $docBlock['name'],
-                                'method'      => $item->getName(),
-                                'class'       => $rcCurClass->getName(),
-                                'httpMethods' => $docBlock['httpMethods'],
-                            ];
-                        } else {
-                            continue;
-                        }
-                    } else {
+                    if (!$item->isPublic())
                         continue;
-                    }
+                    $dc = $item->getDocComment();
+                    if (empty($dc))
+                        continue;
+                    $docBlock = $this->parseDocBlock($dc);
+                    if (!empty($docBlock))
+                        continue;
+                    $routes[] = [
+                        'url'         => $docBlock['pattern'],
+                        'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
+                        'name'        => $docBlock['name'],
+                        'method'      => $item->getName(),
+                        'class'       => $rcCurClass->getName(),
+                        'httpMethods' => $docBlock['httpMethods'],
+                    ];
                 }
             }
         }
