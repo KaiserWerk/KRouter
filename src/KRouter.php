@@ -197,6 +197,7 @@ class KRouter
         $parts = array_values($parts);
         
         foreach ($parts as $item) {
+            $item = trim($item);
             if (substr($item, 0, 3) == '* @') {
                 $item = str_replace('* @', '', $item);
                 
