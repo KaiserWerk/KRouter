@@ -148,10 +148,9 @@ class KRouter
                     if ($dc !== false && !empty($dc)) {
                         $docBlock = $this->parseDocBlock($dc);
                         if (!empty($docBlock)) {
-                            $pattern  = $this->parseDocBlock($dc)['pattern'];
                             $routes[] = [
-                                'url'         => $pattern,
-                                'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '$~',
+                                'url'         => $docBlock['pattern'],
+                                'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
                                 'name'        => $docBlock['name'],
                                 'method'      => $item->getName(),
                                 'class'       => $rcCurClass->getName(),
