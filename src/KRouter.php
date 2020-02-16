@@ -144,17 +144,22 @@ class KRouter
                 $methodList    = $rcCurClass->getMethods();
                 unset($methodList[count($methodList) - 1]);
                 foreach ($methodList as $item) {
-                    if ($item->getDocComment() !== false) {
-                        $pattern  = $this->parseDocBlock($item->getDocComment())['pattern'];
-                        $routes[] = [
-                            #'url' => ($pattern=='/') ? '' : $pattern,
-                            'url'         => $pattern,
-                            'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '$~',
-                            'name'        => $this->parseDocBlock($item->getDocComment())['name'],
-                            'method'      => $item->getName(),
-                            'class'       => $rcCurClass->getName(),
-                            'httpMethods' => $this->parseDocBlock($item->getDocComment())['httpMethods'],
-                        ];
+                    $dc = $item->getDocComment();
+                    if ($dc !== false && !empty($dc)) {
+                        $docBlock = $this->parseDocBlock($dc);
+                        if (!empty($docBlock)) {
+                            $pattern  = $this->parseDocBlock($dc)['pattern'];
+                            $routes[] = [
+                                'url'         => $pattern,
+                                'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $pattern)) . '$~',
+                                'name'        => $docBlock['name'],
+                                'method'      => $item->getName(),
+                                'class'       => $rcCurClass->getName(),
+                                'httpMethods' => $docBlock['httpMethods'],
+                            ];
+                        } else {
+                            continue;
+                        }
                     } else {
                         continue;
                     }
