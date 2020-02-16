@@ -31,34 +31,27 @@ class KRouter
         }
 		
         $routes = $this->getRoutes();
-        #echo '<pre>';var_dump($routes);die;
         foreach ($routes as $route) {
-            #echo '<b>Route URL:</b> '.$route['url'].', <b>Route Pattern:</b> '.$route['pattern'].', <b>Request URL:</b> '.$url.'<br>';
             if ($route['url'] == $url) {
                 #echo '<b>___________________ MATCH!!!_______________</b><br>';continue;
                 if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods']) ||
                     substr_count($route['pattern'], '/') != substr_count($url, '/')) {
                     continue;
                 }
-                #die('URL: ' . $url . ', Pattern: ' . $route['url']);
                 
                 (new $route['class']())->{$route['method']}();
                 die;
             }
         }
-        #echo '<br>';
         foreach ($routes as $route) {
-            #echo '<b>Route URL:</b> '.$route['url'].', <b>Route Pattern:</b> '.$route['pattern'].', <b>Request URL:</b> '.$url.'<br>';
             if ($route['url'] == '/') {
                 continue;
             }
             if (preg_match($route['pattern'], $url)) {
-                #echo '<b>___________________ MATCH!!!_______________</b><br>';continue;
                 if (!in_array($_SERVER['REQUEST_METHOD'], $route['httpMethods']) ||
                     substr_count($route['pattern'], '/') != substr_count($url, '/')) {
                     continue;
                 }
-                #die('URL: ' . $url . ', Pattern: ' . $route['pattern']);
                 $parameters = $this->getRouteParameters($route['url']);
                 (new $route['class']())->{$route['method']}($parameters);
                 die;
@@ -104,7 +97,6 @@ class KRouter
                 $varName = null;
                 if (preg_match('~^\[\:[a-z0-9]+\]$~', $parts[$i])) {
                     $varName = str_replace('[:', '', str_replace(']', '', $parts[$i]));
-                    #$varName = preg_replace('~^\[\:[a-z0-9]+\]$~', '${1}', $parts[$i]);
                     $namedParameters[$varName] = $parts2[$i];
                 }
             }
@@ -217,7 +209,6 @@ class KRouter
                 if ($annotation == 'Method') {
                     $element = str_replace(')', '', trim($blockdocParts[1]));
                     $_methods = \json_decode($element, true);
-                    #var_dump($_methods);die;
                 }
                 
                 $routes = [
