@@ -122,15 +122,15 @@ class KRouter
         if (!class_exists($this->baseClass)) {
             die('The base class '.$this->baseClass.' is not defined.');
         }
-        $aClasses    = get_declared_classes();
-        $aChildrenOf = [];
-        $routes      = [];
+        $allClasses    = get_declared_classes();
+        $allChildrenOf = [];
+        $routes        = [];
         try {
             $parentClass = new \ReflectionClass($this->baseClass);
         } catch (\ReflectionException $e) {
             die($e->getMessage());
         }
-        foreach ($aClasses AS $class) {
+        foreach ($allClasses as $class) {
             try {
                 $rcCurClass = new \ReflectionClass($class);
             } catch (\ReflectionException $e) {
@@ -140,12 +140,12 @@ class KRouter
                 continue;
             }
             if ($rcCurClass->isSubclassOf($parentClass)) {
-                $aChildrenOf[] = $rcCurClass;
-                $methodList    = $rcCurClass->getMethods();
+                $allChildrenOf[] = $rcCurClass;
+                $methodList      = $rcCurClass->getMethods();
                 unset($methodList[count($methodList) - 1]);
                 foreach ($methodList as $item) {
                     $dc = $item->getDocComment();
-                    if ($dc !== false && !empty($dc)) {
+                    if (!empty($dc)) {
                         $docBlock = $this->parseDocBlock($dc);
                         if (!empty($docBlock)) {
                             $routes[] = [
@@ -197,7 +197,7 @@ class KRouter
         $parts = array_values($parts);
         
         foreach ($parts as $item) {
-            if (substr($item, 0, 2) == '* @') {
+            if (substr($item, 0, 3) == '* @') {
                 $item = str_replace('* @', '', $item);
                 
                 $blockdocParts = explode('(', $item);
