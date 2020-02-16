@@ -26,10 +26,10 @@ class KRouter
     {
         $url = $_SERVER['REQUEST_URI']; // this needs some rework since REQUEST_URI can be manipulated
         
-		if (strpos($url, '?') !== false) {
+        if (strpos($url, '?') !== false) {
             $url = explode('?', $url)[0];
         }
-		
+        
         $routes = $this->getRoutes();
         foreach ($routes as $route) {
             if ($route['url'] == $url) {
@@ -82,9 +82,9 @@ class KRouter
     {
         $namedParameters = null;
         if (strpos($definedRoute, '[:') !== false) {
-            $url = $_SERVER['REQUEST_URI'];
+            $url             = $_SERVER['REQUEST_URI'];
             $namedParameters = [];
-            $parts = explode('/', $definedRoute);
+            $parts           = explode('/', $definedRoute);
             unset($parts[0]);
             $parts = array_values($parts);
             
@@ -96,23 +96,23 @@ class KRouter
             for ($i = 0; $i < $count; ++ $i) {
                 $varName = null;
                 if (preg_match('~^\[\:[a-z0-9]+\]$~', $parts[$i])) {
-                    $varName = str_replace('[:', '', str_replace(']', '', $parts[$i]));
+                    $varName                   = str_replace('[:', '', str_replace(']', '', $parts[$i]));
                     $namedParameters[$varName] = $parts2[$i];
                 }
             }
         }
-        return (object)$namedParameters;
+        
+        return (object) $namedParameters;
     }
     
     /**
      * Return all defined routes in Controller annotations
-     *
      * @return array
      */
     public function getRoutes()
     {
         if (!class_exists($this->baseClass)) {
-            die('The base class '.$this->baseClass.' is not defined.');
+            die('The base class ' . $this->baseClass . ' is not defined.');
         }
         $allClasses    = get_declared_classes();
         $allChildrenOf = [];
@@ -136,14 +136,17 @@ class KRouter
                 $methodList      = $rcCurClass->getMethods();
                 unset($methodList[count($methodList) - 1]);
                 foreach ($methodList as $item) {
-                    if (!$item->isPublic())
+                    if (!$item->isPublic()) {
                         continue;
+                    }
                     $dc = $item->getDocComment();
-                    if (empty($dc))
+                    if (empty($dc)) {
                         continue;
+                    }
                     $docBlock = $this->parseDocBlock($dc);
-                    if (!empty($docBlock))
+                    if (!empty($docBlock)) {
                         continue;
+                    }
                     $routes[] = [
                         'url'         => $docBlock['pattern'],
                         'pattern'     => '~' . preg_replace('~\[\:[a-z0-9]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
@@ -159,7 +162,8 @@ class KRouter
             die('There are no defined routes. Start by creating a controller class extending the Controller class.');
         }
         
-        uasort($routes, function($a, $b) {
+        uasort($routes, function ($a, $b)
+        {
             return substr_count($b['pattern'], '/') <=> substr_count($a['pattern'], '/') && strlen($b['pattern']) < strlen($a['pattern']);
         });
         
@@ -175,11 +179,11 @@ class KRouter
      */
     public function parseDocBlock($text)
     {
-        $routes = [];
-        $_pattern = null;
-        $_name = null;
-        $_methods = null;
-        $parts = preg_split("/\r\n|\n|\r/", $text);
+        $routeInfo = [];
+        $_pattern  = null;
+        $_name     = null;
+        $_methods  = null;
+        $parts     = preg_split("/\r\n|\n|\r/", $text);
         
         unset($parts[0]);
         $parts = array_values($parts);
@@ -202,18 +206,18 @@ class KRouter
                         $_name     = str_replace('name=', '', str_replace('"', '', trim($elements2[1])));
                     } else {
                         $elements2 = str_replace(')', '', trim($blockdocParts[0]));
-                        $_pattern = str_replace('"', '', $elements2);
-                        $_name = null;
+                        $_pattern  = str_replace('"', '', $elements2);
+                        $_name     = null;
                     }
                 }
                 if ($annotation == 'Method') {
-                    $element = str_replace(')', '', trim($blockdocParts[1]));
+                    $element  = str_replace(')', '', trim($blockdocParts[1]));
                     $_methods = \json_decode($element, true);
                 }
                 
-                $routes = [
-                    'pattern'  => $_pattern,
-                    'name' => $_name,
+                $routeInfo = [
+                    'pattern'     => $_pattern,
+                    'name'        => $_name,
                     'httpMethods' => $_methods,
                 ];
             } else {
@@ -221,6 +225,6 @@ class KRouter
             }
         }
         
-        return $routes;
+        return $routeInfo;
     }
 }
