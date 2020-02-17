@@ -149,7 +149,7 @@ class KRouter
                     }
                     $routes[] = [
                         'url'         => $docBlock['pattern'],
-                        'pattern'     => '~' . preg_replace('~\[\:[a-z0-9_]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
+                        'pattern'     => '~' . preg_replace('~\[\:[a-z0-9\_]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
                         'name'        => $docBlock['name'],
                         'method'      => $item->getName(),
                         'class'       => $rcCurClass->getName(),
