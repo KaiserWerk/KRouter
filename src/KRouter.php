@@ -95,7 +95,7 @@ class KRouter
             $count = count($parts);
             for ($i = 0; $i < $count; ++ $i) {
                 $varName = null;
-                if (preg_match('~^\[\:[a-z0-9]+\]$~', $parts[$i])) {
+                if (preg_match('~^\[\:[a-z0-9_]+\]$~', $parts[$i])) {
                     $varName                   = str_replace('[:', '', str_replace(']', '', $parts[$i]));
                     $namedParameters[$varName] = $parts2[$i];
                 }
@@ -149,7 +149,7 @@ class KRouter
                     }
                     $routes[] = [
                         'url'         => $docBlock['pattern'],
-                        'pattern'     => '~' . preg_replace('~\[\:[a-z0-9\_]+\]~', '[a-z0-9-_.]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
+                        'pattern'     => '~' . preg_replace('~\[\:[a-z0-9_]+\]~', '[a-z0-9_]+', str_replace('/', '\/', $docBlock['pattern'])) . '$~',
                         'name'        => $docBlock['name'],
                         'method'      => $item->getName(),
                         'class'       => $rcCurClass->getName(),
