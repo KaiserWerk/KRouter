@@ -8,6 +8,8 @@ First, do a `composer require kaiserwerk/k-router dev-master` to fetch the lates
 require_once __DIR__ . '/vendor/autoload.php';
 
 ...
+// include your controller files here
+...
 
 $router = new KRouter();
 $router->dispatch():
